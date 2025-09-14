@@ -17,13 +17,14 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
-    QListWidget,
     QPushButton,
     QSplitter,
     QTextEdit,
     QVBoxLayout,
     QWidget,
     QStyle,
+    QTableWidget,
+    QTableWidgetItem,
 )
 
 from ..organizer.plan import plan_moves
@@ -36,6 +37,7 @@ class OrganizerPanel(QWidget):
         super().__init__(parent)
         self.file_paths: List[str] = []
         self.dest_dir: str = ""
+        self.plan: List[dict] = []
         self._build_ui()
 
     # ------------------------------------------------------------------ UI --
@@ -69,25 +71,37 @@ class OrganizerPanel(QWidget):
         main.addLayout(top_layout)
 
         splitter = QSplitter(Qt.Vertical)
-        self.files_list = QListWidget()
-        splitter.addWidget(self.files_list)
+        self.plan_table = QTableWidget()
+        self.plan_table.setColumnCount(5)
+        self.plan_table.setHorizontalHeaderLabels(
+            ["Mover", "Origen", "Destino", "Género", "Año"]
+        )
+        splitter.addWidget(self.plan_table)
         self.log = QTextEdit()
         self.log.setReadOnly(True)
         splitter.addWidget(self.log)
         main.addWidget(splitter)
 
+        btn_layout = QHBoxLayout()
+        btn_layout.setContentsMargins(0, 0, 0, 0)
+        btn_layout.setSpacing(5)
+        plan_btn = QPushButton("Planear")
+        plan_btn.setIcon(style.standardIcon(QStyle.SP_FileDialogDetailedView))
+        plan_btn.clicked.connect(self.plan_files)
+        btn_layout.addWidget(plan_btn)
         organize_btn = QPushButton("Organizar")
         organize_btn.setIcon(style.standardIcon(QStyle.SP_DialogApplyButton))
         organize_btn.clicked.connect(self.organize_files)
-        main.addWidget(organize_btn)
+        btn_layout.addWidget(organize_btn)
+        main.addLayout(btn_layout)
 
     # -------------------------------------------------------------- actions --
     def select_files(self) -> None:
         paths, _ = QFileDialog.getOpenFileNames(self, "Seleccionar archivos")
         if paths:
             self.file_paths = list(paths)
-            self.files_list.clear()
-            self.files_list.addItems(paths)
+            self.plan = []
+            self.plan_table.setRowCount(0)
             self.log.append(f"{len(paths)} archivos seleccionados.")
 
     def select_destination(self) -> None:
@@ -97,7 +111,7 @@ class OrganizerPanel(QWidget):
             self.dest_edit.setText(d)
             self.log.append(f"Carpeta destino: {d}")
 
-    def organize_files(self) -> None:
+    def plan_files(self) -> None:
         if not self.file_paths:
             self.log.append("No se han seleccionado archivos.")
             return
@@ -105,8 +119,45 @@ class OrganizerPanel(QWidget):
             self.log.append("Seleccione una carpeta de destino.")
             return
 
-        plan = plan_moves(self.file_paths, self.dest_dir)
-        for item in plan:
+        self.plan = plan_moves(self.file_paths, self.dest_dir)
+        self.plan_table.setRowCount(len(self.plan))
+        for row, item in enumerate(self.plan):
+            check_item = QTableWidgetItem()
+            if item.get("status") == "ok":
+                check_item.setCheckState(Qt.Checked)
+            else:
+                check_item.setCheckState(Qt.Unchecked)
+                check_item.setFlags(check_item.flags() & ~Qt.ItemIsEnabled)
+            self.plan_table.setItem(row, 0, check_item)
+
+            origin_item = QTableWidgetItem(item.get("original_path", ""))
+            origin_item.setFlags(origin_item.flags() & ~Qt.ItemIsEditable)
+            self.plan_table.setItem(row, 1, origin_item)
+
+            dest_item = QTableWidgetItem(item.get("proposed_path", ""))
+            dest_item.setFlags(dest_item.flags() & ~Qt.ItemIsEditable)
+            self.plan_table.setItem(row, 2, dest_item)
+
+            genre_item = QTableWidgetItem(item.get("genre", ""))
+            genre_item.setFlags(genre_item.flags() & ~Qt.ItemIsEditable)
+            self.plan_table.setItem(row, 3, genre_item)
+
+            year_item = QTableWidgetItem(item.get("year", ""))
+            year_item.setFlags(year_item.flags() & ~Qt.ItemIsEditable)
+            self.plan_table.setItem(row, 4, year_item)
+
+        self.plan_table.resizeColumnsToContents()
+        self.log.append(f"Plan generado para {len(self.plan)} archivos.")
+
+    def organize_files(self) -> None:
+        if not self.plan:
+            self.log.append("No hay plan generado.")
+            return
+
+        for row, item in enumerate(self.plan):
+            check_item = self.plan_table.item(row, 0)
+            if not check_item or check_item.checkState() != Qt.Checked:
+                continue
             src = item.get("original_path", "")
             dest = item.get("proposed_path", "")
             if item.get("status") == "ok" and src and dest:
