@@ -3,7 +3,6 @@ import os
 APP_NAME = "SongSearch"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "..", "data")
-os.makedirs(DATA_DIR, exist_ok=True)
 DB_PATH = os.path.join(DATA_DIR, "songsearch.db")
 
 # Extensiones soportadas
@@ -26,4 +25,15 @@ MB_CONTACT = ""  # e.g. your email or project URL (optional courtesy)
 # AcoustID API key.  Can also be provided via the ``ACOUSTID_API_KEY``
 # environment variable; the configuration value is used as a fallback.
 ACOUSTID_API_KEY = os.environ.get("ACOUSTID_API_KEY", "")
+
+
+def init_paths() -> None:
+    """Create required application directories.
+
+    Ensures that :data:`DATA_DIR` exists before components such as the
+    database attempt to use it.  This avoids performing filesystem
+    operations at import time.
+    """
+
+    os.makedirs(DATA_DIR, exist_ok=True)
 
