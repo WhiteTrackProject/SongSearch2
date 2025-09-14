@@ -7,11 +7,11 @@ from songsearch.organizer import plan_moves, export_plan_csv
 
 def test_plan_moves_success(monkeypatch):
     def fake_read_tags(path):
-        assert path == "src/song.MP3"
+        assert path == "input/song.MP3"
         return {"title": "Local", "genre": "LocalGenre"}
 
     def fake_enrich(path):
-        assert path == "src/song.MP3"
+        assert path == "input/song.MP3"
         return {"title": "MBTitle", "artist": "MBArtist", "year": "2021"}
 
     def fake_build(base, meta, ext):
@@ -29,10 +29,10 @@ def test_plan_moves_success(monkeypatch):
     )
     monkeypatch.setattr("songsearch.organizer.plan.build_destination", fake_build)
 
-    plan = plan_moves(["src/song.MP3"], "/base")
+    plan = plan_moves(["input/song.MP3"], "/base")
     assert plan == [
         {
-            "original_path": "src/song.MP3",
+            "original_path": "input/song.MP3",
             "proposed_path": "/final/MBArtist - MBTitle.mp3",
             "status": "ok",
             "reason": "planned",

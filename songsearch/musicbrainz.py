@@ -11,6 +11,7 @@ try:  # pragma: no cover - optional dependency
 except Exception:  # pragma: no cover - import failure
     musicbrainzngs = None  # type: ignore
 
+from .config import MB_APP_NAME, MB_APP_VERSION, MB_CONTACT, ACOUSTID_API_KEY
 from .tags import _parse_date
 from .logger import logger
 
@@ -62,8 +63,8 @@ def enrich_with_musicbrainz(file_path: str) -> Dict[str, Any]:
         logger.warning("Fingerprinting failed for %s: %s", file_path, exc)
         return tags
 
-    api_key = os.environ.get("ACOUSTID_API_KEY")
-    if api_key is None:
+    api_key = ACOUSTID_API_KEY or None
+    if not api_key:
         logger.info(
             "ACOUSTID_API_KEY not set; performing lookup without API key which may impose limitations"
         )
@@ -89,12 +90,16 @@ def enrich_with_musicbrainz(file_path: str) -> Dict[str, Any]:
     if not recording_id:
         return tags
 
-    # MusicBrainz requires a user-agent string.  Use a generic one as the
-    # project does not provide its own.
+    # MusicBrainz requires a user-agent string.  Configure it using the values
+    # from :mod:`songsearch.config` to allow courteous identification.
     if musicbrainzngs is None:
         return tags
     try:
-        musicbrainzngs.set_useragent("songsearch", "0.1")
+        musicbrainzngs.set_useragent(
+            MB_APP_NAME or "songsearch",
+            MB_APP_VERSION or "0.1",
+            MB_CONTACT or None,
+        )
         mb_data = musicbrainzngs.get_recording_by_id(
             recording_id, includes=["artists", "releases"]
         )
