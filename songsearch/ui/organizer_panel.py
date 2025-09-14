@@ -28,6 +28,7 @@ from PyQt5.QtWidgets import (
 )
 
 from ..organizer.plan import plan_moves
+from ..organizer.destination import build_destination
 
 
 class OrganizerPanel(QWidget):
@@ -76,6 +77,7 @@ class OrganizerPanel(QWidget):
         self.plan_table.setHorizontalHeaderLabels(
             ["Mover", "Origen", "Destino", "Género", "Año"]
         )
+        self.plan_table.itemChanged.connect(self._plan_item_changed)
         splitter.addWidget(self.plan_table)
         self.log = QTextEdit()
         self.log.setReadOnly(True)
@@ -121,6 +123,7 @@ class OrganizerPanel(QWidget):
 
         self.plan = plan_moves(self.file_paths, self.dest_dir)
         self.plan_table.setRowCount(len(self.plan))
+        self.plan_table.blockSignals(True)
         for row, item in enumerate(self.plan):
             check_item = QTableWidgetItem()
             if item.get("status") == "ok":
@@ -139,13 +142,12 @@ class OrganizerPanel(QWidget):
             self.plan_table.setItem(row, 2, dest_item)
 
             genre_item = QTableWidgetItem(item.get("genre", ""))
-            genre_item.setFlags(genre_item.flags() & ~Qt.ItemIsEditable)
             self.plan_table.setItem(row, 3, genre_item)
 
             year_item = QTableWidgetItem(item.get("year", ""))
-            year_item.setFlags(year_item.flags() & ~Qt.ItemIsEditable)
             self.plan_table.setItem(row, 4, year_item)
 
+        self.plan_table.blockSignals(False)
         self.plan_table.resizeColumnsToContents()
         self.log.append(f"Plan generado para {len(self.plan)} archivos.")
 
@@ -170,3 +172,33 @@ class OrganizerPanel(QWidget):
             else:
                 reason = item.get("reason", "desconocido")
                 self.log.append(f"Error con {src}: {reason}")
+
+    # ------------------------------------------------------- event handlers --
+    def _plan_item_changed(self, item: QTableWidgetItem) -> None:
+        if item.column() not in (3, 4):
+            return
+        row = item.row()
+        if row >= len(self.plan):
+            return
+        field = "genre" if item.column() == 3 else "year"
+        self.plan[row][field] = item.text()
+
+        ext = os.path.splitext(self.plan[row].get("original_path", ""))[1]
+        meta = {
+            "year": self.plan[row].get("year"),
+            "month": self.plan[row].get("month"),
+            "genre": self.plan[row].get("genre"),
+            "artist": self.plan[row].get("artist"),
+            "title": self.plan[row].get("title"),
+        }
+        dest = build_destination(self.dest_dir, meta, ext)
+        self.plan[row]["proposed_path"] = dest
+        dest_item = self.plan_table.item(row, 2)
+        if dest_item is None:
+            dest_item = QTableWidgetItem(dest)
+            dest_item.setFlags(dest_item.flags() & ~Qt.ItemIsEditable)
+            self.plan_table.setItem(row, 2, dest_item)
+        else:
+            self.plan_table.blockSignals(True)
+            dest_item.setText(dest)
+            self.plan_table.blockSignals(False)
