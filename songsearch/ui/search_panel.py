@@ -35,6 +35,7 @@ from PyQt5.QtWidgets import (
     QStyle,
     QSlider,
     QSplitter,
+    QPlainTextEdit,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -63,7 +64,8 @@ class SearchPanel(QWidget):
         main = QVBoxLayout(self)
 
         search_layout = QHBoxLayout()
-        self.input_text = QTextEdit()
+        self.input_text = QPlainTextEdit()
+        self.input_text.setPlaceholderText("Introduce una canción o artista por línea")
         search_layout.addWidget(self.input_text)
 
         btns = QVBoxLayout()
@@ -233,7 +235,7 @@ class SearchPanel(QWidget):
         self.log.clear()
 
     def _perform_search(self) -> None:
-        rows = [s.strip() for s in self.input_text.toPlainText().strip().splitlines() if s.strip()]
+        rows = [s.strip() for s in self.input_text.toPlainText().splitlines() if s.strip()]
         if not rows:
             self.log.append("Introduce canciones o artistas.")
             return
