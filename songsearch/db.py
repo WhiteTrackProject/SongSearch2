@@ -85,6 +85,25 @@ class DatabaseManager:
                 (f"%{query}%",),
             ).fetchall()
 
-    def fetch_all_for_fuzzy(self) -> List[Tuple]:
+    def fetch_all_for_fuzzy(self, query: str, mode: str) -> List[Tuple]:
+        """Fetch candidate rows for fuzzy search using a LIKE filter.
+
+        Args:
+            query: Text used to pre-filter rows.
+            mode: "artist" to search against artist names, otherwise search song
+                titles and filenames.
+        """
         with self._conn() as c:
-            return c.execute("SELECT id,name,artist,title,path FROM songs").fetchall()
+            if mode == "artist":
+                return c.execute(
+                    "SELECT id,name,artist,title,path FROM songs WHERE artist LIKE ?",
+                    (f"%{query}%",),
+                ).fetchall()
+            # song mode: filter by title or name
+            return c.execute(
+                """
+                SELECT id,name,artist,title,path FROM songs
+                WHERE title LIKE ? OR name LIKE ?
+                """,
+                (f"%{query}%", f"%{query}%"),
+            ).fetchall()

@@ -13,7 +13,7 @@ def fuzzy_search(db: DatabaseManager, query: str, mode: str, threshold: int) -> 
         mode: "artist" to match against artist names, otherwise match song titles/names.
         threshold: Minimum score (0-100) required for a match.
     """
-    rows = db.fetch_all_for_fuzzy()
+    rows = db.fetch_all_for_fuzzy(query, mode)
 
     if mode == "artist":
         choices = [(r[2] or "", r) for r in rows]  # artist, row
