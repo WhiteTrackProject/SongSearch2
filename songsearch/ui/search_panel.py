@@ -39,7 +39,7 @@ from PyQt5.QtWidgets import (
 from ..config import DEFAULT_FUZZY_THRESHOLD, FILE_EXTS
 from ..db import DatabaseManager
 from ..logger import logger
-from ..search.engine import fuzzy_search
+from ..search import fuzzy_search
 
 
 class SearchPanel(QWidget):
