@@ -16,6 +16,8 @@ from __future__ import annotations
 import os
 from datetime import datetime
 
+from mutagen import File
+
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QColor
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
@@ -171,20 +173,38 @@ class SearchPanel(QWidget):
                 ):
                     p = os.path.join(root, f)
                     try:
+                        audio = File(p, easy=True)
+                        tags = audio.tags if audio else {}
+                        artist = tags.get("artist", [None])[0] if tags else None
+                        title = tags.get("title", [None])[0] if tags else None
+                        album = tags.get("album", [None])[0] if tags else None
+                        date = tags.get("date", [None])[0] if tags else None
+                        year = month = None
+                        if date:
+                            if len(date) >= 4:
+                                year = date[:4]
+                            if len(date) >= 7:
+                                month = date[5:7]
+                        genre = tags.get("genre", [None])[0] if tags else None
+                        duration = (
+                            int(audio.info.length)
+                            if audio is not None and getattr(audio, "info", None)
+                            else None
+                        )
                         size = os.path.getsize(p)
                         mdate = datetime.fromtimestamp(os.path.getmtime(p)).strftime(
                             "%Y-%m-%d %H:%M:%S"
                         )
                         self.db.add_song(
                             name=name,
-                            artist=None,
-                            title=None,
-                            album=None,
-                            year=None,
-                            month=None,
-                            genre=None,
+                            artist=artist,
+                            title=title,
+                            album=album,
+                            year=year,
+                            month=month,
+                            genre=genre,
                             path=p,
-                            duration=None,
+                            duration=duration,
                             file_format=ext,
                             size=size,
                             modified_date=mdate,
