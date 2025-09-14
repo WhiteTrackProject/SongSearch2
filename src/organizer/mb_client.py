@@ -1,6 +1,6 @@
 import os
 from typing import Dict, Any, Optional, Tuple, List
-from .scanner import read_tags  # por si queremos fusionar tags locales como fallback
+
 from ..config import MB_APP_NAME, MB_APP_VERSION, MB_CONTACT, ACOUSTID_API_KEY
 from ..logger import logger
 
