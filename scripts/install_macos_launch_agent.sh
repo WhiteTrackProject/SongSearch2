@@ -39,7 +39,7 @@ cat > "$DEST" <<PLIST
 </plist>
 PLIST
 
-launchctl unload "$DEST" 2>/dev/null || true
-launchctl load "$DEST"
+launchctl bootout "gui/$UID" "$DEST" 2>/dev/null || true
+launchctl bootstrap "gui/$UID" "$DEST"
 
 echo "LaunchAgent installed to $DEST"
