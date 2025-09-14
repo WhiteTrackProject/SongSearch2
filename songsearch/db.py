@@ -63,9 +63,27 @@ class DatabaseManager:
             c.execute("UPDATE songs SET path=? WHERE name=?", (new_path, name,))
 
     def search_song_like(self, query: str, mode: str = "song") -> List[Tuple]:
+        """Search for songs by title or artist using a LIKE query.
+
+        Args:
+            query: Substring to match within the selected column.
+            mode: "song" to search by song title, "artist" to search by artist name.
+
+        Returns:
+            List of tuples representing matching rows.
+
+        Raises:
+            ValueError: If *mode* is not "song" or "artist".
+        """
+        if mode not in {"song", "artist"}:
+            raise ValueError("mode must be 'song' or 'artist'")
+
         col = "title" if mode == "song" else "artist"
         with self._conn() as c:
-            return c.execute(f"SELECT id,name,artist,path,title FROM songs WHERE {col} LIKE ?", (f"%{query}%",)).fetchall()
+            return c.execute(
+                f"SELECT id,name,artist,path,title FROM songs WHERE {col} LIKE ?",
+                (f"%{query}%",),
+            ).fetchall()
 
     def fetch_all_for_fuzzy(self) -> List[Tuple]:
         with self._conn() as c:

@@ -53,3 +53,8 @@ def test_fuzzy_search_song(sample_db):
 
     high_threshold = fuzzy_search(sample_db, "bohemian", "song", 80)
     assert high_threshold == []
+
+
+def test_search_song_like_invalid_mode(sample_db):
+    with pytest.raises(ValueError):
+        sample_db.search_song_like("query", "album")
