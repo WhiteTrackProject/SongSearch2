@@ -123,7 +123,7 @@ class OrganizerPanel(QWidget):
             self.status.setText("Cancelando...")
 
     def _toggle_ui(self, running: bool):
-        self.run_btn.setEnabled(!running if False else (not running))
+        self.run_btn.setEnabled(not running)
         self.cancel_btn.setEnabled(running)
         self.src_btn.setEnabled(not running)
         self.dest_btn.setEnabled(not running)
