@@ -14,3 +14,16 @@ DEFAULT_FUZZY_THRESHOLD = 70  # 0-100
 
 # Plantilla Organizer
 DEFAULT_DEST_TEMPLATE = "{year}/{month}/{genre}/{artist}/{artist} - {title}{ext}"
+
+# --- MusicBrainz / AcoustID config ---
+# ``musicbrainzngs`` and ``pyacoustid`` require a user-agent string and
+# optionally an API key for AcoustID lookups.  The defaults below mirror the
+# previous ``src`` package so that older configurations continue to work.
+MB_APP_NAME = APP_NAME
+MB_APP_VERSION = "1.0"
+MB_CONTACT = ""  # e.g. your email or project URL (optional courtesy)
+
+# AcoustID API key.  Can also be provided via the ``ACOUSTID_API_KEY``
+# environment variable; the configuration value is used as a fallback.
+ACOUSTID_API_KEY = os.environ.get("ACOUSTID_API_KEY", "")
+
