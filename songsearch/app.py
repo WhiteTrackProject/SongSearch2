@@ -1,3 +1,6 @@
+from pathlib import Path
+
+from PyQt5.QtCore import QFile
 from PyQt5.QtWidgets import QAction, QMainWindow, QTabWidget
 
 from .ui.search_panel import SearchPanel
@@ -16,6 +19,12 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.search_panel, "Buscar")
         self.tabs.addTab(self.organizer_panel, "Organizar")
         self.setCentralWidget(self.tabs)
+
+        qss_path = Path(__file__).parent / "ui" / "styles.qss"
+        file = QFile(str(qss_path))
+        if file.open(QFile.ReadOnly):
+            self.setStyleSheet(file.readAll().data().decode())
+            file.close()
 
         self._build_menus()
 

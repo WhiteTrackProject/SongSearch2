@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QVBoxLayout,
     QWidget,
+    QStyle,
 )
 
 from ..organizer.plan import plan_moves
@@ -39,7 +40,9 @@ class OrganizerPanel(QWidget):
     def _build_ui(self) -> None:
         main = QVBoxLayout(self)
 
+        style = self.style()
         file_btn = QPushButton("Seleccionar Archivos")
+        file_btn.setIcon(style.standardIcon(QStyle.SP_DialogOpenButton))
         file_btn.clicked.connect(self.select_files)
         main.addWidget(file_btn)
 
@@ -49,6 +52,7 @@ class OrganizerPanel(QWidget):
         self.dest_edit.setReadOnly(True)
         dest_layout.addWidget(self.dest_edit)
         dest_btn = QPushButton("Elegir Destino")
+        dest_btn.setIcon(style.standardIcon(QStyle.SP_DirOpenIcon))
         dest_btn.clicked.connect(self.select_destination)
         dest_layout.addWidget(dest_btn)
         main.addLayout(dest_layout)
@@ -57,6 +61,7 @@ class OrganizerPanel(QWidget):
         main.addWidget(self.files_list)
 
         organize_btn = QPushButton("Organizar")
+        organize_btn.setIcon(style.standardIcon(QStyle.SP_DialogApplyButton))
         organize_btn.clicked.connect(self.organize_files)
         main.addWidget(organize_btn)
 

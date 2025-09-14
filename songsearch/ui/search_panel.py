@@ -32,6 +32,7 @@ from PyQt5.QtWidgets import (
     QListWidgetItem,
     QPushButton,
     QRadioButton,
+    QStyle,
     QSlider,
     QSplitter,
     QTextEdit,
@@ -66,10 +67,15 @@ class SearchPanel(QWidget):
         search_layout.addWidget(self.input_text)
 
         btns = QVBoxLayout()
+        style = self.style()
         self.search_button = QPushButton("Buscar")
+        self.search_button.setIcon(style.standardIcon(QStyle.SP_FileDialogContentsView))
         self.folder_button = QPushButton("Elegir Carpeta")
+        self.folder_button.setIcon(style.standardIcon(QStyle.SP_DirOpenIcon))
         self.update_button = QPushButton("Actualizar Base de Datos")
+        self.update_button.setIcon(style.standardIcon(QStyle.SP_BrowserReload))
         self.clear_button = QPushButton("Limpiar")
+        self.clear_button.setIcon(style.standardIcon(QStyle.SP_DialogResetButton))
         btns.addWidget(self.search_button)
         btns.addWidget(self.folder_button)
         btns.addWidget(self.update_button)
@@ -85,6 +91,7 @@ class SearchPanel(QWidget):
         controls = QHBoxLayout(controls_widget)
         self.play_pause_button = QPushButton("Play")
         self.play_pause_button.setEnabled(False)
+        self.play_pause_button.setIcon(style.standardIcon(QStyle.SP_MediaPlay))
         self.progress_bar = QSlider(Qt.Horizontal)
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setEnabled(False)
@@ -303,9 +310,15 @@ class SearchPanel(QWidget):
         if self.player.state() == QMediaPlayer.PlayingState:
             self.player.pause()
             self.play_pause_button.setText("Play")
+            self.play_pause_button.setIcon(
+                self.style().standardIcon(QStyle.SP_MediaPlay)
+            )
         else:
             self.player.play()
             self.play_pause_button.setText("Pause")
+            self.play_pause_button.setIcon(
+                self.style().standardIcon(QStyle.SP_MediaPause)
+            )
 
     def _update_position(self, pos: int | None = None) -> None:  # pragma: no cover
         # The ``pos`` parameter is part of the Qt signal but the method uses the
