@@ -55,8 +55,8 @@ class DatabaseManager:
         try:
             with self._conn() as c:
                 c.execute(f"INSERT OR IGNORE INTO songs ({fields}) VALUES ({placeholders})", values)
-        except Exception as e:
-            logger.error(f"DB add_song error: {e}")
+        except Exception:
+            logger.exception("DB add_song error")
 
     def update_song_location(self, name: str, new_path: str):
         with self._conn() as c:
