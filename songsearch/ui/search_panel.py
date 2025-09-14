@@ -224,6 +224,7 @@ class SearchPanel(QWidget):
 
     def _add_result(self, name: str, status: str, path: str | None = None) -> None:
         item = QListWidgetItem(name)
+        item.setData(Qt.UserRole, status)
         if status == "found":
             item.setForeground(QColor("green"))
             item.setToolTip(path or "")
@@ -233,10 +234,10 @@ class SearchPanel(QWidget):
         self.results.addItem(item)
 
     def _handle_double_click(self, item: QListWidgetItem) -> None:
-        color = item.foreground().color().name()
-        if color == "#008000":  # green
+        status = item.data(Qt.UserRole)
+        if status == "found":
             self._play(item.toolTip())
-        elif color == "#ff0000":  # red
+        elif status == "not_found":
             self._assign_location(item)
 
     def _assign_location(self, item: QListWidgetItem) -> None:
@@ -246,6 +247,7 @@ class SearchPanel(QWidget):
         if file_path:
             item.setForeground(QColor("green"))
             item.setToolTip(file_path)
+            item.setData(Qt.UserRole, "found")
             self.log.append(f"Ubicación asignada a '{item.text()}'.")
             self.db.update_song_location(item.text(), file_path)
 
