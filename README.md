@@ -21,6 +21,15 @@ Run the application from the project root:
 python -m songsearch
 ```
 
+## macOS auto-start
+To have SongSearch2 launch automatically when you log in on macOS, run:
+
+```bash
+./scripts/install_macos_launch_agent.sh
+```
+
+This script creates a `LaunchAgent` that starts the app at login and keeps it running.
+
 ## Running Tests
 Execute the test suite with:
 
