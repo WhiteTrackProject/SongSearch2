@@ -10,7 +10,7 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 
 from ..db import DatabaseManager
 from ..config import FILE_EXTS, DEFAULT_FUZZY_THRESHOLD
-from ..search.engine import fuzzy_search
+from ..search import fuzzy_search
 from ..logger import logger
 from ..threads.workers import IndexWorker
 
