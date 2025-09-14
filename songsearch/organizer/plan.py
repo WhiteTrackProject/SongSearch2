@@ -5,6 +5,7 @@ from typing import List, Dict, Tuple
 from ..tags import read_tags
 from ..musicbrainz import enrich_with_musicbrainz
 from .destination import build_destination
+from ..logger import logger
 
 
 def plan_moves(file_paths: List[str], base_dest_dir: str) -> List[Dict[str, str]]:
@@ -54,6 +55,7 @@ def plan_moves(file_paths: List[str], base_dest_dir: str) -> List[Dict[str, str]
                 }
             )
         except Exception as exc:  # pragma: no cover - defensive
+            logger.exception("Error planning move for %s", src)
             plan.append(
                 {
                     "original_path": src,
