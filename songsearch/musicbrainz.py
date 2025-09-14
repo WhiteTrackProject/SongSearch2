@@ -24,7 +24,13 @@ def detect_fpcalc() -> Optional[str]:
     for path in os.environ.get("PATH", "").split(os.pathsep):
         for name in ("fpcalc", "fpcalc.exe"):
             candidate = os.path.join(path, name)
-            if os.path.isfile(candidate):
+            # ``fpcalc`` may exist on ``PATH`` but lack execute permissions
+            # (e.g. created as a placeholder file in tests or by packaging
+            # mistakes).  Returning such a path would later cause confusing
+            # failures when trying to run the command.  Guard against this by
+            # ensuring the candidate is both a regular file **and**
+            # executable for the current user.
+            if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
                 return candidate
     return None
 
