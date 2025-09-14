@@ -58,3 +58,23 @@ def test_fuzzy_search_song(sample_db):
 def test_search_song_like_invalid_mode(sample_db):
     with pytest.raises(ValueError):
         sample_db.search_song_like("query", "album")
+
+
+def test_fetch_all_for_fuzzy_filters_results(sample_db):
+    all_rows = sample_db.fetch_all_for_fuzzy("", "song")
+    assert len(all_rows) == 3
+
+    filtered = sample_db.fetch_all_for_fuzzy("bo", "song")
+    assert len(filtered) == 1
+    assert filtered[0][3] == "Bohemian Rhapsody"
+
+    artist_filtered = sample_db.fetch_all_for_fuzzy("beat", "artist")
+    assert len(artist_filtered) == 1
+    assert artist_filtered[0][2] == "The Beatles"
+
+
+def test_fuzzy_search_reduces_candidates(sample_db):
+    # threshold 0 ensures results would include all songs if not filtered
+    results = fuzzy_search(sample_db, "bo", "song", 0)
+    assert len(results) == 1
+    assert results[0]["title"] == "Bohemian Rhapsody"
