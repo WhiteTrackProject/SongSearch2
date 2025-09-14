@@ -4,7 +4,7 @@ from PyQt5.QtCore import QThread
 from typing import List
 import os
 
-from ..organizer.dryrun import export_plan_csv
+from ..organizer.plan import export_plan_csv
 from ..organizer.mb_client import detect_fpcalc
 from ..config import FILE_EXTS
 from ..threads.workers import DryRunWorker
