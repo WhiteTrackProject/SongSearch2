@@ -1,5 +1,5 @@
 import sqlite3
-from typing import List, Tuple, Optional, Dict, Any
+from typing import List, Tuple
 from .config import DB_PATH
 from .logger import logger
 

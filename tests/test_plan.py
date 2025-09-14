@@ -1,7 +1,5 @@
 import csv
 
-import pytest
-
 from songsearch.organizer import plan_moves, export_plan_csv
 
 
