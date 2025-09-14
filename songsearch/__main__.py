@@ -5,6 +5,8 @@ from __future__ import annotations
 import sys
 from typing import Optional
 
+from . import config
+
 try:  # pragma: no cover - import side effects are environment dependent
     from PyQt5.QtWidgets import QApplication  # type: ignore
     _IMPORT_ERROR: Optional[Exception] = None
@@ -21,6 +23,7 @@ def main() -> None:
     import time.  This makes the module usable in headless environments and
     provides clearer feedback to the user.
     """
+    config.init_paths()
 
     if QApplication is None:  # pragma: no cover - only triggered when Qt missing
         print(
