@@ -101,7 +101,7 @@ def enrich_with_musicbrainz(file_path: str) -> Dict[str, Any]:
             MB_CONTACT or None,
         )
         mb_data = musicbrainzngs.get_recording_by_id(
-            recording_id, includes=["artists", "releases"]
+            recording_id, includes=["artists", "releases", "genres"]
         )
     except Exception as exc:  # pragma: no cover - network failure
         logger.warning(
@@ -125,6 +125,12 @@ def enrich_with_musicbrainz(file_path: str) -> Dict[str, Any]:
         artist = artists[0]
         if isinstance(artist, dict):
             tags["artist"] = artist.get("artist", {}).get("name")
+
+    genres = recording.get("genres")
+    if genres:
+        genre = genres[0].get("name") if isinstance(genres[0], dict) else None
+        if genre:
+            tags["genre"] = genre
 
     releases = recording.get("releases")
     if releases:
