@@ -5,7 +5,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 # Importes locales (se importan aquí para evitar problemas de import cruzado en UI)
 from ..db import DatabaseManager
-from ..organizer.dryrun import plan_moves
+from ..organizer.plan import plan_moves
 
 class IndexWorker(QObject):
     """Escanea una carpeta y añade entradas a la DB en segundo plano."""
