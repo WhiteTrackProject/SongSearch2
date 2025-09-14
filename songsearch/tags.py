@@ -44,6 +44,17 @@ def _parse_date(value: Any) -> Tuple[Optional[str], Optional[str]]:
     if not value:
         return None, None
 
+    # ``mutagen`` may return the date tag as a list which ``str`` would
+    # render like ``['1999-07']``.  Splitting such representation would
+    # include the brackets and quotes producing invalid year/month values.
+    # Accept sequences and pick the first element before converting to
+    # string.  This keeps behaviour consistent with ``_first_value`` which
+    # already returns the first entry for tag lists.
+    if isinstance(value, (list, tuple)):
+        if not value:
+            return None, None
+        value = value[0]
+
     date_str = str(value).replace("/", "-")
     parts = date_str.split("-")
     year = parts[0] or None
