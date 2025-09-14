@@ -63,6 +63,10 @@ def enrich_with_musicbrainz(file_path: str) -> Dict[str, Any]:
         return tags
 
     api_key = os.environ.get("ACOUSTID_API_KEY")
+    if api_key is None:
+        logger.info(
+            "ACOUSTID_API_KEY not set; performing lookup without API key which may impose limitations"
+        )
 
     try:
         lookup = pyacoustid.lookup(api_key, fingerprint, duration)
