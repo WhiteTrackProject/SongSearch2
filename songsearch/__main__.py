@@ -1,13 +1,48 @@
+"""Entry point for the :mod:`songsearch` package."""
+
+from __future__ import annotations
+
 import sys
-from PyQt5.QtWidgets import QApplication
-from .app import MainWindow
+from typing import Optional
+
+try:  # pragma: no cover - import side effects are environment dependent
+    from PyQt5.QtWidgets import QApplication  # type: ignore
+    _IMPORT_ERROR: Optional[Exception] = None
+except Exception as exc:  # noqa: BLE001 - we want to catch anything import might raise
+    QApplication = None  # type: ignore[assignment]
+    _IMPORT_ERROR = exc
 
 
-def main():
-    app = QApplication(sys.argv)
-    w = MainWindow()
-    w.show()
-    sys.exit(app.exec_())
+def main() -> None:
+    """Launch the application.
+
+    If PyQt5 (or its native dependencies such as ``libGL``) is not available,
+    a friendly message is printed instead of raising an ``ImportError`` at
+    import time.  This makes the module usable in headless environments and
+    provides clearer feedback to the user.
+    """
+
+    if QApplication is None:  # pragma: no cover - only triggered when Qt missing
+        print(
+            "PyQt5 is required to run the GUI but could not be imported:\n"
+            f"{_IMPORT_ERROR}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    try:
+        app = QApplication(sys.argv)
+        from .app import MainWindow
+        w = MainWindow()
+        w.show()
+        sys.exit(app.exec_())
+    except Exception as exc:  # pragma: no cover - environment dependent
+        print(
+            "Failed to start the GUI:\n"
+            f"{exc}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":
