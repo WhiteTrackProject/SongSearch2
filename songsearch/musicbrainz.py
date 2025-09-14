@@ -12,6 +12,7 @@ except Exception:  # pragma: no cover - import failure
     musicbrainzngs = None  # type: ignore
 
 from .tags import _parse_date
+from .logger import logger
 
 
 def detect_fpcalc() -> Optional[str]:
@@ -56,15 +57,17 @@ def enrich_with_musicbrainz(file_path: str) -> Dict[str, Any]:
             )
         else:
             duration, fingerprint = pyacoustid.fingerprint_file(file_path)
-    except Exception:  # pragma: no cover - external tool failure
+    except Exception as exc:  # pragma: no cover - external tool failure
         # Fingerprinting failed – nothing to enrich with
+        logger.warning("Fingerprinting failed for %s: %s", file_path, exc)
         return tags
 
     api_key = os.environ.get("ACOUSTID_API_KEY")
 
     try:
         lookup = pyacoustid.lookup(api_key, fingerprint, duration)
-    except Exception:  # pragma: no cover - network failure
+    except Exception as exc:  # pragma: no cover - network failure
+        logger.warning("AcoustID lookup failed for %s: %s", file_path, exc)
         return tags
 
     results = lookup.get("results", []) if isinstance(lookup, dict) else []
@@ -91,7 +94,13 @@ def enrich_with_musicbrainz(file_path: str) -> Dict[str, Any]:
         mb_data = musicbrainzngs.get_recording_by_id(
             recording_id, includes=["artists", "releases"]
         )
-    except Exception:  # pragma: no cover - network failure
+    except Exception as exc:  # pragma: no cover - network failure
+        logger.warning(
+            "MusicBrainz lookup failed for %s (recording %s): %s",
+            file_path,
+            recording_id,
+            exc,
+        )
         return tags
 
     recording = mb_data.get("recording", {}) if isinstance(mb_data, dict) else {}
