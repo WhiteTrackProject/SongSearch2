@@ -33,6 +33,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QRadioButton,
     QSlider,
+    QSplitter,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -60,9 +61,9 @@ class SearchPanel(QWidget):
     def _build_ui(self) -> None:
         main = QVBoxLayout(self)
 
-        top = QHBoxLayout()
+        search_layout = QHBoxLayout()
         self.input_text = QTextEdit()
-        top.addWidget(self.input_text)
+        search_layout.addWidget(self.input_text)
 
         btns = QVBoxLayout()
         self.search_button = QPushButton("Buscar")
@@ -73,13 +74,15 @@ class SearchPanel(QWidget):
         btns.addWidget(self.folder_button)
         btns.addWidget(self.update_button)
         btns.addWidget(self.clear_button)
-        top.addLayout(btns)
+        search_layout.addLayout(btns)
+        main.addLayout(search_layout)
 
+        splitter = QSplitter(Qt.Vertical)
         self.results = QListWidget()
-        top.addWidget(self.results)
-        main.addLayout(top)
+        splitter.addWidget(self.results)
 
-        controls = QHBoxLayout()
+        controls_widget = QWidget()
+        controls = QHBoxLayout(controls_widget)
         self.play_pause_button = QPushButton("Play")
         self.play_pause_button.setEnabled(False)
         self.progress_bar = QSlider(Qt.Horizontal)
@@ -87,7 +90,9 @@ class SearchPanel(QWidget):
         self.progress_bar.setEnabled(False)
         controls.addWidget(self.play_pause_button)
         controls.addWidget(self.progress_bar)
-        main.addLayout(controls)
+        splitter.addWidget(controls_widget)
+
+        main.addWidget(splitter)
 
         params = QGridLayout()
         params.addWidget(QLabel("Parámetros de Búsqueda:"), 0, 0, 1, 2)
