@@ -26,6 +26,7 @@ from PyQt5.QtWidgets import (
     QCheckBox,
     QFileDialog,
     QGridLayout,
+    QGroupBox,
     QHBoxLayout,
     QLabel,
     QListWidget,
@@ -104,7 +105,6 @@ class SearchPanel(QWidget):
         main.addWidget(splitter)
 
         params = QGridLayout()
-        params.addWidget(QLabel("Parámetros de Búsqueda:"), 0, 0, 1, 2)
         self.artist_radio = QRadioButton("Artista")
         self.song_radio = QRadioButton("Canción")
         self.artist_radio.setChecked(False)
@@ -112,8 +112,8 @@ class SearchPanel(QWidget):
         group = QButtonGroup()
         group.addButton(self.artist_radio)
         group.addButton(self.song_radio)
-        params.addWidget(self.artist_radio, 1, 0)
-        params.addWidget(self.song_radio, 1, 1)
+        params.addWidget(self.artist_radio, 0, 0)
+        params.addWidget(self.song_radio, 0, 1)
 
         self.quality_slider = QSlider(Qt.Horizontal)
         self.quality_slider.setRange(0, 100)
@@ -124,10 +124,9 @@ class SearchPanel(QWidget):
         self.quality_slider.valueChanged.connect(
             lambda v: self.intensity_label.setText(f"Intensidad de Búsqueda: {v}%")
         )
-        params.addWidget(self.intensity_label, 2, 0)
-        params.addWidget(self.quality_slider, 2, 1)
+        params.addWidget(self.intensity_label, 1, 0)
+        params.addWidget(self.quality_slider, 1, 1)
 
-        params.addWidget(QLabel("Formatos de Archivo:"), 3, 0, 1, 2)
         ft = QGridLayout()
         self.file_type_checkboxes: dict[str, QCheckBox] = {}
 
@@ -143,8 +142,13 @@ class SearchPanel(QWidget):
             if c > 3:
                 c = 0
                 r += 1
-        params.addLayout(ft, 4, 0, 1, 2)
-        main.addLayout(params)
+        file_formats_group = QGroupBox("Formatos de Archivo")
+        file_formats_group.setLayout(ft)
+        params.addWidget(file_formats_group, 2, 0, 1, 2)
+
+        params_group = QGroupBox("Parámetros de búsqueda")
+        params_group.setLayout(params)
+        main.addWidget(params_group)
 
         # simple log
         self.log = QTextEdit()
