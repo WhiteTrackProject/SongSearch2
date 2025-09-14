@@ -11,6 +11,7 @@ import os
 import shutil
 from typing import List
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
@@ -18,6 +19,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QListWidget,
     QPushButton,
+    QSplitter,
     QTextEdit,
     QVBoxLayout,
     QWidget,
@@ -39,14 +41,17 @@ class OrganizerPanel(QWidget):
     # ------------------------------------------------------------------ UI --
     def _build_ui(self) -> None:
         main = QVBoxLayout(self)
+        main.setContentsMargins(5, 5, 5, 5)
+        main.setSpacing(5)
 
         style = self.style()
         file_btn = QPushButton("Seleccionar Archivos")
         file_btn.setIcon(style.standardIcon(QStyle.SP_DialogOpenButton))
         file_btn.clicked.connect(self.select_files)
-        main.addWidget(file_btn)
 
         dest_layout = QHBoxLayout()
+        dest_layout.setContentsMargins(0, 0, 0, 0)
+        dest_layout.setSpacing(5)
         dest_layout.addWidget(QLabel("Destino:"))
         self.dest_edit = QLineEdit()
         self.dest_edit.setReadOnly(True)
@@ -55,20 +60,26 @@ class OrganizerPanel(QWidget):
         dest_btn.setIcon(style.standardIcon(QStyle.SP_DirOpenIcon))
         dest_btn.clicked.connect(self.select_destination)
         dest_layout.addWidget(dest_btn)
-        main.addLayout(dest_layout)
 
+        top_layout = QHBoxLayout()
+        top_layout.setContentsMargins(0, 0, 0, 0)
+        top_layout.setSpacing(5)
+        top_layout.addWidget(file_btn)
+        top_layout.addLayout(dest_layout)
+        main.addLayout(top_layout)
+
+        splitter = QSplitter(Qt.Vertical)
         self.files_list = QListWidget()
-        main.addWidget(self.files_list)
+        splitter.addWidget(self.files_list)
+        self.log = QTextEdit()
+        self.log.setReadOnly(True)
+        splitter.addWidget(self.log)
+        main.addWidget(splitter)
 
         organize_btn = QPushButton("Organizar")
         organize_btn.setIcon(style.standardIcon(QStyle.SP_DialogApplyButton))
         organize_btn.clicked.connect(self.organize_files)
         main.addWidget(organize_btn)
-
-        self.log = QTextEdit()
-        self.log.setReadOnly(True)
-        self.log.setFixedHeight(100)
-        main.addWidget(self.log)
 
     # -------------------------------------------------------------- actions --
     def select_files(self) -> None:
