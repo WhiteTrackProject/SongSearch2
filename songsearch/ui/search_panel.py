@@ -213,18 +213,31 @@ class SearchPanel(QWidget):
             matches = fuzzy_search(self.db, q.lower(), mode, thr)
             if matches:
                 for m in matches:
-                    self._add_result(m["title"] or m["name"] or q, "found", m["path"])
+                    self._add_result(
+                        m["title"] or m["name"] or q,
+                        "found",
+                        m["path"],
+                        m["id"],
+                    )
                 found_any = True
             else:
-                self._add_result(q, "not_found")
+                self._add_result(q, "not_found", identifier=q)
         if found_any:
             self.log.append("Búsqueda completada (coincidencias encontradas).")
         else:
             self.log.append("Sin coincidencias.")
 
-    def _add_result(self, name: str, status: str, path: str | None = None) -> None:
+    def _add_result(
+        self,
+        name: str,
+        status: str,
+        path: str | None = None,
+        identifier: int | str | None = None,
+    ) -> None:
         item = QListWidgetItem(name)
         item.setData(Qt.UserRole, status)
+        if identifier is not None:
+            item.setData(Qt.UserRole + 1, identifier)
         if status == "found":
             item.setForeground(QColor("green"))
             item.setToolTip(path or "")
@@ -249,7 +262,8 @@ class SearchPanel(QWidget):
             item.setToolTip(file_path)
             item.setData(Qt.UserRole, "found")
             self.log.append(f"Ubicación asignada a '{item.text()}'.")
-            self.db.update_song_location(item.text(), file_path)
+            identifier = item.data(Qt.UserRole + 1) or item.text()
+            self.db.update_song_location(identifier, file_path)
 
     def _play(self, path: str) -> None:
         if not path or not os.path.exists(path):
