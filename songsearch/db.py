@@ -58,9 +58,12 @@ class DatabaseManager:
         except Exception:
             logger.exception("DB add_song error")
 
-    def update_song_location(self, name: str, new_path: str):
+    def update_song_location(self, identifier: int | str, new_path: str):
         with self._conn() as c:
-            c.execute("UPDATE songs SET path=? WHERE name=?", (new_path, name,))
+            if isinstance(identifier, int):
+                c.execute("UPDATE songs SET path=? WHERE id=?", (new_path, identifier))
+            else:
+                c.execute("UPDATE songs SET path=? WHERE name=?", (new_path, identifier))
 
     def search_song_like(self, query: str, mode: str = "song") -> List[Tuple]:
         """Search for songs by title or artist using a LIKE query.
